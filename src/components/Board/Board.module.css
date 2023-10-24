@@ -1,0 +1,13 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    padding: 20px;
+}
+
+.newList {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
