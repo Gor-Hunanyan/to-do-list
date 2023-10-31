@@ -3,7 +3,8 @@ import Card from "../Card/Card";
 import Modal from "../Modal/Modal";
 import styles from "./List.module.css";
 
-function List({ name, onEditName }) {
+function List(props) {
+  const { name, onEditName, onRemove} = props
   const [cards, setCards] = useState([]);
   const [mode, setMode] = useState(null);
   const [editIndex, setEditIndex] = useState(null);
@@ -85,6 +86,7 @@ function List({ name, onEditName }) {
         />
       ))}
       <button onClick={() => openModal("add")}>+ Add Card</button>
+      <button className={styles.removeButton} onClick={() => onRemove(name)}>Remove</button>
 
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalTitle}>
         {mode === "edit-list-name" ? (

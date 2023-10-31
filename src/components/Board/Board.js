@@ -31,6 +31,11 @@ function Board() {
     setLists(updatedLists);
   };
 
+  const onRemove = (name) => {
+    const newList = lists.filter((item) => item !== name)
+    setLists(newList)
+  }
+
   return (
     <div>
       <div className={styles.container}>
@@ -39,6 +44,7 @@ function Board() {
             key={index}
             name={listName}
             onEditName={(name) => onEditName(name, index)}
+            onRemove={onRemove}
           />
         ))}
         <button onClick={() => setIsModalOpen(true)}>+ Add New List</button>

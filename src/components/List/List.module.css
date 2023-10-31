@@ -16,3 +16,8 @@
 .listTitle:hover {
     color: gray;
 }
+
+.removeButton {
+    color: red;
+    margin-left: 50px;
+}
