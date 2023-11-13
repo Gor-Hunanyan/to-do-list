@@ -1,11 +1,15 @@
 import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { getCurrentBoard } from "../../store/boards/selectors";
+import { boardsSlice } from "../../store/boards";
 import Card from "../Card/Card";
 import Modal from "../Modal/Modal";
 import styles from "./List.module.css";
 
 function List(props) {
-  const { name, onEditName, onRemove} = props
-  const [cards, setCards] = useState([]);
+  const { data, index } = props;
+  const dispatch = useDispatch();
+  const currentBoard = useSelector(getCurrentBoard);
   const [mode, setMode] = useState(null);
   const [editIndex, setEditIndex] = useState(null);
   const [newCardName, setNewCardName] = useState("");
@@ -13,29 +17,51 @@ function List(props) {
   const [listName, setListName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const onEditName = () => {
+    dispatch(
+      boardsSlice.actions.editListName({
+        listName,
+        listIndex: index,
+        boardId: currentBoard.id,
+      })
+    );
+    closeModal();
+  };
+
+  const onRemove = () => {
+    dispatch(
+      boardsSlice.actions.removeList({
+        boardId: currentBoard.id,
+        listName: data.name,
+      })
+    );
+  };
+
   const addCard = () => {
     if (newCardName) {
-      setCards((prevCards) => [
-        ...prevCards,
-        { name: newCardName, description: newCardDesc },
-      ]);
-      setNewCardName("");
-      setNewCardDesc("");
-      setIsModalOpen(false);
+      dispatch(
+        boardsSlice.actions.addCard({
+          boardId: currentBoard.id,
+          listIndex: index,
+          name: newCardName,
+          description: newCardDesc,
+        })
+      );
+      closeModal();
     }
   };
 
   const editCard = () => {
-    let updatedCards = [...cards];
-    updatedCards[editIndex].name = newCardName;
-    updatedCards[editIndex].description = newCardDesc;
-    setCards(updatedCards);
-    setIsModalOpen(false);
-  };
-
-  const editListName = () => {
-    onEditName(listName);
-    setIsModalOpen(false);
+    dispatch(
+      boardsSlice.actions.editCard({
+        boardId: currentBoard.id,
+        listIndex: index,
+        cardIndex: editIndex,
+        name: newCardName,
+        description: newCardDesc,
+      })
+    );
+    closeModal();
   };
 
   const openModal = (mode, index) => {
@@ -44,8 +70,8 @@ function List(props) {
 
     if (mode === "edit") {
       setEditIndex(index);
-      setNewCardName(cards[index].name);
-      setNewCardDesc(cards[index].description);
+      setNewCardName(data.cards[index].name);
+      setNewCardDesc(data.cards[index].description);
     }
   };
 
@@ -76,9 +102,9 @@ function List(props) {
           openModal("edit-list-name");
         }}
       >
-        {name}
+        {data.name}
       </h3>
-      {cards.map((card, index) => (
+      {data.cards.map((card, index) => (
         <Card
           key={index}
           data={card}
@@ -86,7 +112,9 @@ function List(props) {
         />
       ))}
       <button onClick={() => openModal("add")}>+ Add Card</button>
-      <button className={styles.removeButton} onClick={() => onRemove(name)}>Remove</button>
+      <button className={styles.removeButton} onClick={onRemove}>
+        Remove
+      </button>
 
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalTitle}>
         {mode === "edit-list-name" ? (
@@ -94,10 +122,10 @@ function List(props) {
             <input
               type="text"
               placeholder="List Name"
-              defaultValue={name}
+              defaultValue={data.name}
               onChange={(e) => setListName(e.target.value)}
             />
-            <button onClick={editListName}>Confirm</button>
+            <button onClick={onEditName}>Confirm</button>
           </>
         ) : (
           <>

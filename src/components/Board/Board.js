@@ -1,16 +1,25 @@
 import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { getCurrentBoard } from "../../store/boards/selectors";
+import { boardsSlice } from "../../store/boards";
 import List from "../List/List";
 import Modal from "../Modal/Modal";
 import styles from "./Board.module.css";
 
 function Board() {
-  const [lists, setLists] = useState(["Backlog", "In progress", "Done"]);
+  const dispatch = useDispatch();
+  const currentBoard = useSelector(getCurrentBoard);
   const [newListName, setNewListName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const addList = () => {
     if (newListName) {
-      setLists((prevLists) => [...prevLists, newListName]);
+      dispatch(
+        boardsSlice.actions.addList({
+          boardId: currentBoard.id,
+          name: newListName,
+        })
+      );
       setNewListName("");
       setIsModalOpen(false);
     }
@@ -21,30 +30,15 @@ function Board() {
     setNewListName("");
   };
 
-  const onEditName = (name, editIndex) => {
-    const updatedLists = lists.map((el, index) => {
-      if (index === editIndex) {
-        return name;
-      }
-      return el;
-    });
-    setLists(updatedLists);
-  };
-
-  const onRemove = (name) => {
-    const newList = lists.filter((item) => item !== name)
-    setLists(newList)
-  }
 
   return (
     <div>
       <div className={styles.container}>
-        {lists.map((listName, index) => (
+        {currentBoard.lists.map((item, index) => (
           <List
             key={index}
-            name={listName}
-            onEditName={(name) => onEditName(name, index)}
-            onRemove={onRemove}
+            data={item}
+            index={index}
           />
         ))}
         <button onClick={() => setIsModalOpen(true)}>+ Add New List</button>

@@ -23,6 +23,20 @@ export const boardsSlice = createSlice({
       const index = state.boards.findIndex((el) => el.id === boardId);
       state.boards[index].lists.push({ name, cards: [] });
     },
+    addCard: (state, action) => {
+      const { boardId, listIndex, name, description } = action.payload;
+      const index = state.boards.findIndex((el) => el.id === boardId);
+      state.boards[index].lists[listIndex].cards.push({ name, description });
+    },
+    editCard: (state, action) => {
+      const { boardId, listIndex, cardIndex, name, description } =
+        action.payload;
+      const index = state.boards.findIndex((el) => el.id === boardId);
+      state.boards[index].lists[listIndex].cards[cardIndex] = {
+        name,
+        description,
+      };
+    },
     editListName: (state, action) => {
       const { listName, listIndex, boardId } = action.payload;
       const boardIndex = state.boards.findIndex((el) => el.id === boardId);
