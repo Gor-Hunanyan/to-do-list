@@ -1,0 +1,119 @@
+import { useState } from "react";
+import styles from "./BoardsNav.module.css";
+import { useSelector, useDispatch } from "react-redux";
+import { getBoards, getCurrentBoard } from "../../store/boards/selectors";
+import { boardsSlice } from "../../store/boards";
+import Modal from "../Modal/Modal";
+
+const BoardsNav = () => {
+  const dispatch = useDispatch();
+  const boards = useSelector(getBoards);
+  const currentBoard = useSelector(getCurrentBoard);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [boardName, setBoardName] = useState("");
+  const [mode, setMode] = useState(null);
+
+  const onClick = (id) => {
+    dispatch(boardsSlice.actions.setCurrentBoardId({ id }));
+  };
+
+  const openModal = (mode, editId) => {
+    setMode(mode);
+    setIsModalOpen(true);
+
+    if (mode === "edit") {
+      setEditId(editId);
+      const board = boards.find(el => el.id === editId)
+      setBoardName(board.name);
+    }
+  };
+
+  const closeModal = () => {
+    setBoardName("");
+    setIsModalOpen(false);
+  };
+
+  const addBoard = () => {
+    if (boardName) {
+      dispatch(
+        boardsSlice.actions.addBoard({
+          name: boardName,
+        })
+      );
+      closeModal();
+    }
+  };
+
+  const editBoardName = () => {
+    dispatch(
+      boardsSlice.actions.editBoardName({
+        boardId: editId,
+        boardName,
+      })
+    );
+    closeModal();
+  };
+
+  const onRemove = (id) => {
+    dispatch(
+      boardsSlice.actions.removeBoard({
+        id,
+      })
+    );
+  };
+
+  let modalTitle = "";
+  if (mode === "edit") {
+    modalTitle = "Edit Board Name";
+  }
+  if (mode === "add") {
+    modalTitle = "Add New Board";
+  }
+
+  if (!currentBoard) {
+    return <span>Empty</span>
+  }
+
+  return (
+    <div className={styles.sidebar}>
+      <nav>
+        <ul>
+          {boards.map((board) => {
+            return (
+              <li key={board.id}>
+                <span
+                  style={{
+                    color: board.id === currentBoard.id ? "blue" : "black",
+                  }}
+                  onClick={() => onClick(board.id)}
+                >
+                  {board.name}
+                </span>
+                <button onClick={() => openModal("edit", board.id)}>edit</button>
+                <button onClick={() => onRemove(board.id)}>remove</button>
+              </li>
+            );
+          })}
+        </ul>
+        <button onClick={() => openModal("add")}>Add New Board</button>
+      </nav>
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalTitle}>
+        <>
+          <input
+            type="text"
+            placeholder="Board Name"
+            value={boardName}
+            onChange={(e) => setBoardName(e.target.value)}
+          />
+          <button onClick={mode === "edit" ? editBoardName : addBoard}>
+            Confirm
+          </button>
+        </>
+      </Modal>
+    </div>
+  );
+};
+
+export default BoardsNav;

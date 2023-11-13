@@ -32,7 +32,7 @@ function Board() {
 
 
   return (
-    <div>
+    <div className={styles.board}>
       <div className={styles.container}>
         {currentBoard.lists.map((item, index) => (
           <List
