@@ -1,12 +1,14 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
 import Board from './components/Board/Board';
+import { store } from "./store";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-root.render(
+ReactDOM.render(
   <React.StrictMode>
-    <Board />
-  </React.StrictMode>
+    <Provider store={store}>
+      <Board />
+    </Provider>
+  </React.StrictMode>,
+  document.getElementById("root")
 );
