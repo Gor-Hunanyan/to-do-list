@@ -30,18 +30,19 @@ function Board() {
     setNewListName("");
   };
 
-
   return (
     <div className={styles.board}>
       <div className={styles.container}>
-        {currentBoard.lists.map((item, index) => (
-          <List
-            key={index}
-            data={item}
-            index={index}
-          />
-        ))}
-        <button onClick={() => setIsModalOpen(true)}>+ Add New List</button>
+        {currentBoard ? (
+          <>
+            {currentBoard.lists.map((item, index) => (
+              <List key={index} data={item} index={index} />
+            ))}
+            <button onClick={() => setIsModalOpen(true)}>+ Add New List</button>
+          </>
+        ) : (
+          "Loading..."
+        )}
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal} title="Add New List">

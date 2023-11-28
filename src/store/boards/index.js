@@ -1,33 +1,32 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  currentBoardId: 1,
-  boards: [
-    {
-      id: 1,
-      name: "Board 1",
-      lists: [
-        { name: "Backlog", cards: [] },
-        { name: "In progress", cards: [] },
-        { name: "Done", cards: [] },
-      ],
-    },
-    {
-      id: 2,
-      name: "Board 2",
-      lists: [
-        { name: "To Do", cards: [] },
-        { name: "Current", cards: [] },
-        { name: "Finish", cards: [] },
-      ],
-    },
-  ],
+  currentBoard: null,
+  currentBoardId: null,
+  boards: [],
 };
 
 export const boardsSlice = createSlice({
   name: "boards",
   initialState,
   reducers: {
+    setBoards: (state, action) => {
+      state.boards = action.payload;
+      state.currentBoardId = state.boards?.[0].id
+    },
+    setCurrentBoard: (state, action) => {
+      const { id, lists } = action.payload;
+      let currentBoard = state.boards.find((item) => item.id === id);
+      state.currentBoard = {
+        ...currentBoard,
+        lists,
+      };
+    },
+    setCurrentBoardTasks: (state, action) => {
+      const { tasks, id } = action.payload;
+      let listIndex = state.currentBoard.lists.findIndex(item => item.id === id);
+      state.currentBoard.lists[listIndex].tasks = tasks
+    },
     setCurrentBoardId: (state, action) => {
       const { id } = action.payload;
       state.currentBoardId = id;
@@ -48,26 +47,21 @@ export const boardsSlice = createSlice({
     removeBoard: (state, action) => {
       const { id } = action.payload;
       state.boards = state.boards.filter((el) => el.id !== id);
-      if (id === state.currentBoardId) {
-        state.currentBoardId = state.boards[0].id;
+      if (id === state.currentBoardId && state.boards.length) {
+        state.currentBoardId = state.boards[0];
       }
     },
 
     addList: (state, action) => {
       const { boardId, name } = action.payload;
       const index = state.boards.findIndex((el) => el.id === boardId);
-      state.boards[index].lists.push({ name, cards: [] });
-    },
-    addCard: (state, action) => {
-      const { boardId, listIndex, name, description } = action.payload;
-      const index = state.boards.findIndex((el) => el.id === boardId);
-      state.boards[index].lists[listIndex].cards.push({ name, description });
+      state.boards[index].lists.push({ name, tasks: [] });
     },
     editCard: (state, action) => {
       const { boardId, listIndex, cardIndex, name, description } =
         action.payload;
       const index = state.boards.findIndex((el) => el.id === boardId);
-      state.boards[index].lists[listIndex].cards[cardIndex] = {
+      state.boards[index].lists[listIndex].tasks[cardIndex] = {
         name,
         description,
       };

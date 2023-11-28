@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentBoard } from "../../store/boards/selectors";
 import { boardsSlice } from "../../store/boards";
 import Card from "../Card/Card";
 import Modal from "../Modal/Modal";
 import styles from "./List.module.css";
+import { fetchTasks, addTask } from "../../api";
 
 function List(props) {
   const { data, index } = props;
@@ -16,6 +17,17 @@ function List(props) {
   const [newCardDesc, setNewCardDesc] = useState("");
   const [listName, setListName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!data.tasks) {
+      initTasks();
+    }
+  }, [data]);
+
+  const initTasks = async () => {
+    const tasks = await fetchTasks(currentBoard.id, data.id);
+    dispatch(boardsSlice.actions.setCurrentBoardTasks({ tasks, id: data.id }));
+  };
 
   const onEditName = () => {
     dispatch(
@@ -37,16 +49,15 @@ function List(props) {
     );
   };
 
-  const addCard = () => {
+  const addCard = async () => {
     if (newCardName) {
-      dispatch(
-        boardsSlice.actions.addCard({
-          boardId: currentBoard.id,
-          listIndex: index,
+      await addTask(currentBoard.id, data.id, {
+        list_task: {
           name: newCardName,
           description: newCardDesc,
-        })
-      );
+        },
+      });
+      initTasks();
       closeModal();
     }
   };
@@ -70,8 +81,8 @@ function List(props) {
 
     if (mode === "edit") {
       setEditIndex(index);
-      setNewCardName(data.cards[index].name);
-      setNewCardDesc(data.cards[index].description);
+      setNewCardName(data.tasks[index].name);
+      setNewCardDesc(data.tasks[index].description);
     }
   };
 
@@ -104,17 +115,21 @@ function List(props) {
       >
         {data.name}
       </h3>
-      {data.cards.map((card, index) => (
-        <Card
-          key={index}
-          data={card}
-          onClick={() => openModal("edit", index)}
-        />
-      ))}
-      <button onClick={() => openModal("add")}>+ Add Card</button>
-      <button className={styles.removeButton} onClick={onRemove}>
-        Remove
-      </button>
+      {data.tasks && (
+        <>
+          {data.tasks.map((card, index) => (
+            <Card
+              key={index}
+              data={card}
+              onClick={() => openModal("edit", index)}
+            />
+          ))}
+          <button onClick={() => openModal("add")}>+ Add Card</button>
+          <button className={styles.removeButton} onClick={onRemove}>
+            Remove
+          </button>
+        </>
+      )}
 
       <Modal isOpen={isModalOpen} onClose={closeModal} title={modalTitle}>
         {mode === "edit-list-name" ? (
