@@ -12,7 +12,7 @@ export const boardsSlice = createSlice({
   reducers: {
     setBoards: (state, action) => {
       state.boards = action.payload;
-      state.currentBoardId = state.boards?.[0].id
+      state.currentBoardId = state.boards?.[0].id;
     },
     setCurrentBoard: (state, action) => {
       const { id, lists } = action.payload;
@@ -24,8 +24,14 @@ export const boardsSlice = createSlice({
     },
     setCurrentBoardTasks: (state, action) => {
       const { tasks, id } = action.payload;
-      let listIndex = state.currentBoard.lists.findIndex(item => item.id === id);
-      state.currentBoard.lists[listIndex].tasks = tasks
+      let listIndex = state.currentBoard.lists.findIndex(
+        (item) => item.id === id
+      );
+      state.currentBoard.lists[listIndex].tasks = tasks;
+    },
+    setCurrentBoardUsers: (state, action) => {
+      const { users } = action.payload;
+      state.currentBoard.users = users;
     },
     setCurrentBoardId: (state, action) => {
       const { id } = action.payload;
@@ -48,7 +54,7 @@ export const boardsSlice = createSlice({
       const { id } = action.payload;
       state.boards = state.boards.filter((el) => el.id !== id);
       if (id === state.currentBoardId && state.boards.length) {
-        state.currentBoardId = state.boards[0];
+        state.currentBoardId = state.boards[0]?.id;
       }
     },
 

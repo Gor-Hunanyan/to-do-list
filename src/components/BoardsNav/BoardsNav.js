@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getBoards, getCurrentBoard, getCurrentBoardId } from "../../store/boards/selectors";
 import { boardsSlice } from "../../store/boards";
 import Modal from "../Modal/Modal";
-import { fetchBoards, fetchBoardLists } from "../../api";
+import { fetchBoards, fetchBoardLists, fetchBoardUsers } from "../../api";
 
 const BoardsNav = () => {
   const dispatch = useDispatch();
@@ -36,6 +36,8 @@ const BoardsNav = () => {
   const initBoard = async () => {
     const lists = await fetchBoardLists(currentBoardId)
     dispatch(boardsSlice.actions.setCurrentBoard({lists, id: currentBoardId}));
+    const users = await fetchBoardUsers(currentBoardId)
+    dispatch(boardsSlice.actions.setCurrentBoardUsers({users}));
   };
 
   const onClick = async (id) => {
