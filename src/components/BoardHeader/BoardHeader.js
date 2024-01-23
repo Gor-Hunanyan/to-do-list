@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentBoard } from "../../store/boards/selectors";
-import { getAllUsers } from "../../store/user/selectors";
-import { userSlice } from "../../store/user";
 import { boardsSlice } from "../../store/boards";
 import {
-  fetchAllUsers,
   addBoardUser,
   removeBoardUser,
   fetchBoardUsers,
+  useFetchAllUsersQuery,
 } from "../../api";
 import Modal from "../Modal/Modal";
 import styles from "./BoardHeader.module.css";
@@ -16,20 +14,8 @@ import styles from "./BoardHeader.module.css";
 const BoardHeader = () => {
   const dispatch = useDispatch();
   const currentBoard = useSelector(getCurrentBoard);
-  const allUsers = useSelector(getAllUsers);
+  const { data: allUsers, error, isLoading } = useFetchAllUsersQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    initAllUsers();
-  }, []);
-
-  console.log("allUsers", allUsers);
-  console.log("currentBoard", currentBoard);
-
-  const initAllUsers = async () => {
-    const users = await fetchAllUsers();
-    dispatch(userSlice.actions.setUsers(users));
-  };
 
   const closeModal = () => {
     setIsModalOpen(false);
